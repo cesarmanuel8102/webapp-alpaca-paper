@@ -6,6 +6,9 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.secret_key = 'alpaca_secret_key'
 
+# Asegura que la carpeta exista
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 logs = []
 
 @app.route('/', methods=['GET', 'POST'])
@@ -24,20 +27,4 @@ def upload_model():
     if file and file.filename.endswith('.py'):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filepath)
-        logs.append(f"[{datetime.datetime.now()}] Modelo cargado: {file.filename}")
-        flash(f'Modelo cargado: {file.filename}')
-        return redirect(url_for('index'))
-    else:
-        flash('Solo se permiten archivos .py')
-        return redirect(url_for('index'))
-
-@app.route('/log_response', methods=['POST'])
-def log_response():
-    response = request.form.get('response')
-    if response:
-        logs.append(f"[{datetime.datetime.now()}] Alpaca API: {response}")
-    return '', 204
-
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host="0.0.0.0", port=port)
+        logs.append(f"[{datetime.datetime.]()
