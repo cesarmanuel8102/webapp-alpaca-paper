@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: webapp-alpaca-paper
+    env: python
+    buildCommand: ""
+    startCommand: "python app.py"
+    envVars:
+      - key: APCA_API_KEY_ID
+        sync: false
+      - key: APCA_API_SECRET_KEY
+        sync: false
+      - key: BASE_URL
+        sync: false
