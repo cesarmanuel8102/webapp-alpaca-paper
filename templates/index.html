@@ -1,38 +1,54 @@
+
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>WebApp Alpaca</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .boton { padding: 10px 20px; margin: 5px; }
+        .azul { background-color: #00bfff; color: white; }
+        .rojo { background-color: #dc3545; color: white; }
+        .panel { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+        pre { background-color: #f8f8f8; padding: 10px; }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-    <h2>🧠 Panel de Control – WebApp Alpaca</h2>
-    <form method="POST" action="/cargar_modelo" class="mb-3">
-        <label class="form-label">📁 Cargar modelo:</label>
-        <select name="modelo" class="form-select w-auto d-inline">
-            <option>Modelo Oficial</option>
-            <option>Modelo Alternativo</option>
-        </select>
-        <button type="submit" class="btn btn-primary">Cargar</button>
-    </form>
-    <form method="POST" action="/ejecutar_modelo" class="d-inline">
-        <button type="submit" class="btn btn-info">▶️ Ejecutar Modelo</button>
-    </form>
-    <form method="POST" action="/detener_modelo" class="d-inline">
-        <button type="submit" class="btn btn-danger">⛔ Detener Modelo</button>
-    </form>
-    <hr>
-    <h4>📊 Estado del Modelo</h4>
-    <p><strong>Modelo:</strong> {{ modelo.nombre }}</p>
-    <p class="text-success"><strong>{{ modelo.estado }}</strong></p>
-    <hr>
-    <h4>📈 Operaciones Recientes</h4>
-    <ul>
-        {% for orden in modelo.ordenes %}
-            <li>{{ orden.ticker }} - {{ orden.tipo }} - {{ orden.cantidad }} @ {{ orden.precio }}</li>
-        {% endfor %}
-    </ul>
-</div>
+<body>
+    <h2>📊 WebApp de Trading con Alpaca</h2>
+    <button class="boton azul" onclick="ejecutarModelo()">▶️ Ejecutar Modelo</button>
+    <button class="boton rojo" onclick="detenerModelo()">⛔ Detener Modelo</button>
+
+    <div class="panel">
+        <h3>📈 Estado del Modelo</h3>
+        <div id="estado_modelo">Cargando estado...</div>
+    </div>
+
+    <div class="panel">
+        <h3>📋 Resultado de la Última Ejecución</h3>
+        <pre id="resultado_modelo">Esperando ejecución...</pre>
+    </div>
+
+    <script>
+        async function ejecutarModelo() {
+            const res = await fetch("/ejecutar_modelo", { method: "POST" });
+            const data = await res.json();
+            document.getElementById("resultado_modelo").textContent = data.detalle;
+            actualizarEstado();
+        }
+
+        async function detenerModelo() {
+            const res = await fetch("/detener_modelo", { method: "POST" });
+            const data = await res.json();
+            actualizarEstado();
+        }
+
+        async function actualizarEstado() {
+            const res = await fetch("/estado_modelo");
+            const data = await res.json();
+            document.getElementById("estado_modelo").textContent = 
+                "Modelo: " + data.nombre + " | Estado: " + (data.activo ? "Activo" : "Inactivo");
+        }
+
+        actualizarEstado();
+    </script>
 </body>
 </html>

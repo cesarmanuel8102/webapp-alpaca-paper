@@ -1,8 +1,13 @@
+
 services:
   - type: web
-    name: webapp-alpaca-paper
+    name: webapp-alpaca-log-v2
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn alpaca_controller:app"
-    autoDeploy: true
+    buildCommand: ""
+    startCommand: "python app.py"
+    envVars:
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
