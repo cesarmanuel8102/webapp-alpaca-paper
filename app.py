@@ -2,7 +2,6 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import os
-import datetime
 
 app = Flask(__name__)
 
@@ -16,7 +15,7 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-modelo_actual = {"nombre": "Modelo Oficial", "activo": False, "resultado": ""}
+modelo_actual = {"nombre": "Modelo Oficial (sin restricción horaria)", "activo": True, "resultado": ""}
 
 @app.route("/")
 def index():
@@ -24,15 +23,6 @@ def index():
 
 @app.route("/ejecutar_modelo", methods=["POST"])
 def ejecutar_modelo():
-    now = datetime.datetime.now().time()
-    hora_actual = now.strftime("%H:%M:%S")
-    resultado = ""
-
-    if not (datetime.time(10,30) <= now <= datetime.time(11,15)):
-        resultado = f"⛔ Orden bloqueada: fuera de horario permitido (hora actual: {hora_actual})."
-        modelo_actual["resultado"] = resultado
-        return jsonify({"status": "fuera_horario", "detalle": resultado})
-
     orden = {
         "symbol": "AAPL",
         "qty": 1,
@@ -44,7 +34,7 @@ def ejecutar_modelo():
     url = f"{ALPACA_BASE_URL}/v2/orders"
     response = requests.post(url, headers=HEADERS, json=orden)
 
-    resultado = f"✅ Orden enviada. Código: {response.status_code}, Respuesta: {response.text}"
+    resultado = f"✅ Orden enviada sin restricción horaria. Código: {response.status_code}, Respuesta: {response.text}"
     modelo_actual["resultado"] = resultado
     return jsonify({"status": "orden_enviada", "detalle": resultado})
 
