@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alpaca Trading Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0066cc;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.8em;
+        }
+        main {
+            padding: 20px;
+        }
+        .buttons {
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            margin-right: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #eaeaea;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        WebApp Alpaca - Trading Automatizado
+    </header>
+    <main>
+        <div class="buttons">
+            <button onclick="alert('Modelo cargado')">📦 Cargar Modelo</button>
+            <button onclick="alert('Ejecución iniciada')">▶️ Iniciar</button>
+            <button onclick="alert('Ejecución detenida')">⏹️ Detener</button>
+            <button onclick="alert('Ver resultados')">📊 Ver Resultados</button>
+        </div>
+
+        <section>
+            <h3>Órdenes Ejecutadas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Ticker</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>P&L</th>
+                        <th>Éxito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>TSLA</td>
+                        <td>Bull Put Spread</td>
+                        <td>Ejecutada</td>
+                        <td>$42.50</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>AAPL</td>
+                        <td>Bear Call Spread</td>
+                        <td>Ejecutada</td>
+                        <td>-$15.00</td>
+                        <td>❌</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        &copy; 2025 WebApp Alpaca - Todos los derechos reservados
+    </footer>
+</body>
+</html>
