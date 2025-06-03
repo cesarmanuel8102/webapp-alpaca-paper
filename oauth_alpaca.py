@@ -1,6 +1,10 @@
 import os
 import webbrowser
 from flask import Flask, request
+from dotenv import load_dotenv
+
+# 👇 Cargar el archivo de entorno correcto
+load_dotenv(dotenv_path=".env.alpaca-oauth")
 
 app = Flask(__name__)
 
@@ -22,6 +26,6 @@ def callback():
     return f"✅ Código recibido: {code}"
 
 if __name__ == "__main__":
-    print("🌐 Abriendo navegador para autorizar...")
+    print(f"🌐 Abriendo navegador para autorizar con client_id={CLIENT_ID} ...")
     webbrowser.open(auth_url)
     app.run(port=8080)
