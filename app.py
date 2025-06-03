@@ -1,52 +1,51 @@
-
-from flask import Flask, render_template, request, jsonify
-import requests
+from flask import Flask, redirect, request, session, url_for, jsonify
 import os
+import requests
+from urllib.parse import urlencode
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "test_secret")
 
-ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
-ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-ALPACA_BASE_URL = "https://paper-api.alpaca.markets"
-
-HEADERS = {
-    "APCA-API-KEY-ID": ALPACA_API_KEY,
-    "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY,
-    "Content-Type": "application/json"
-}
-
-modelo_actual = {"nombre": "Modelo Oficial (sin restricción horaria)", "activo": True, "resultado": ""}
+CLIENT_ID = os.getenv("ALPACA_CLIENT_ID")
+CLIENT_SECRET = os.getenv("ALPACA_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("REDIRECT_URI")
+BASE_URL = os.getenv("BASE_URL")
 
 @app.route("/")
-def index():
-    return render_template("index.html", modelo=modelo_actual)
+def home():
+    return '<a href="/login">Iniciar sesión con Alpaca</a>'
 
-@app.route("/ejecutar_modelo", methods=["POST"])
-def ejecutar_modelo():
-    orden = {
-        "symbol": "AAPL",
-        "qty": 1,
-        "side": "buy",
-        "type": "market",
-        "time_in_force": "gtc"
+@app.route("/login")
+def login():
+    query = urlencode({
+        "response_type": "code",
+        "client_id": CLIENT_ID,
+        "redirect_uri": REDIRECT_URI,
+        "scope": "account:write trading",
+    })
+    return redirect(f"https://app.alpaca.markets/oauth/authorize?{query}")
+
+@app.route("/callback")
+def callback():
+    code = request.args.get("code")
+    if not code:
+        return "Código no proporcionado", 400
+
+    token_url = "https://api.alpaca.markets/oauth/token"
+    payload = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "redirect_uri": REDIRECT_URI,
     }
 
-    url = f"{ALPACA_BASE_URL}/v2/orders"
-    response = requests.post(url, headers=HEADERS, json=orden)
-
-    resultado = f"✅ Orden enviada sin restricción horaria. Código: {response.status_code}, Respuesta: {response.text}"
-    modelo_actual["resultado"] = resultado
-    return jsonify({"status": "orden_enviada", "detalle": resultado})
-
-@app.route("/detener_modelo", methods=["POST"])
-def detener_modelo():
-    modelo_actual["activo"] = False
-    modelo_actual["resultado"] = "⏹ Modelo detenido manualmente."
-    return jsonify({"status": "modelo_detenido"})
-
-@app.route("/estado_modelo")
-def estado_modelo():
-    return jsonify(modelo_actual)
+    response = requests.post(token_url, json=payload)
+    if response.status_code == 200:
+        token_data = response.json()
+        return jsonify(token_data)
+    else:
+        return f"Error al obtener token: {response.text}", 403
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

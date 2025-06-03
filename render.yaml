@@ -1,13 +1,9 @@
-
 services:
   - type: web
-    name: webapp-alpaca-final
+    name: webapp-alpaca-paper-oauth
     env: python
-    plan: free
-    buildCommand: ""
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "python app.py"
     envVars:
-      - key: ALPACA_API_KEY
-        sync: false
-      - key: ALPACA_SECRET_KEY
-        sync: false
+      - key: FLASK_SECRET_KEY
+        value: test_secret
