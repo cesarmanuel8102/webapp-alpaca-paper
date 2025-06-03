@@ -1,16 +1,123 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>WebApp Alpaca</title>
+    <title>Panel de Control - WebApp Alpaca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 2rem;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 6px;
+            background-color: #3498db;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .button.red {
+            background-color: #e74c3c;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .section {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status {
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
 </head>
 <body>
-    <h1>Modelo Alpaca</h1>
-    <form method="post" action="/ejecutar_modelo">
-        <button type="submit">Ejecutar Modelo</button>
-    </form>
-    {% if resultado %}
-        <p><strong>Resultado:</strong> {{ resultado }}</p>
-    {% endif %}
+    <h1>🧠 Panel de Control – WebApp Alpaca</h1>
+
+    <div class="section">
+        <form action="/cargar_modelo" method="post">
+            <label for="modelo">📁 Cargar modelo:</label>
+            <select name="modelo" id="modelo">
+                <option value="modelo_oficial">Modelo Oficial</option>
+                <option value="modelo_hibrido">Modelo Híbrido</option>
+                <option value="modelo_backup">Modelo Backup</option>
+            </select>
+            <button type="submit" class="button">Cargar</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <form action="/ejecutar_modelo" method="post" style="display:inline;">
+            <button type="submit" class="button">▶ Ejecutar Modelo</button>
+        </form>
+        <form action="/detener_modelo" method="post" style="display:inline;">
+            <button type="submit" class="button red">⛔ Detener Modelo</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>📊 Estado del Modelo</h2>
+        <p class="status">{% if resultado %}{{ resultado }}{% else %}Esperando ejecución...{% endif %}</p>
+    </div>
+
+    <div class="section">
+        <h2>📈 Operaciones Recientes</h2>
+        <table>
+            <tr>
+                <th>Fecha</th>
+                <th>Ticker</th>
+                <th>Tipo</th>
+                <th>Resultado</th>
+            </tr>
+            <tr>
+                <td>2025-06-03</td>
+                <td>SPY</td>
+                <td>Bull Put Spread</td>
+                <td>$48.00</td>
+            </tr>
+            <tr>
+                <td>2025-06-02</td>
+                <td>AAPL</td>
+                <td>Bear Call Spread</td>
+                <td>$52.00</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>💰 Capital Acumulado</h2>
+        <p><strong>$12,480.00</strong></p>
+    </div>
+
 </body>
 </html>
