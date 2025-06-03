@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Simulador Alpaca</title>
+    <meta charset="UTF-8">
+    <title>WebApp Alpaca</title>
 </head>
 <body>
-    <h1>WebApp Alpaca Paper Trading</h1>
-    <p>Entorno de simulación funcional.</p>
+    <h1>Modelo Alpaca</h1>
+    <form method="post" action="/ejecutar_modelo">
+        <button type="submit">Ejecutar Modelo</button>
+    </form>
+    {% if resultado %}
+        <p><strong>Resultado:</strong> {{ resultado }}</p>
+    {% endif %}
 </body>
 </html>
