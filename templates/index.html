@@ -1,42 +1,38 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>WebApp Alpaca</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
-<body class="p-4 bg-light">
-    <div class="container">
-        <h2>🧠 Panel de Control – WebApp Alpaca</h2>
-        <form class="mb-3" action="/cargar_modelo" method="post">
-            <label><b>📁 Cargar modelo:</b></label>
-            <select name="modelo">
-                <option value="oficial">Modelo Oficial</option>
-            </select>
-            <button type="submit" class="btn btn-primary">Cargar</button>
-        </form>
-        <form class="mb-3" action="/ejecutar_modelo" method="post">
-            <button type="submit" class="btn btn-primary">▶️ Ejecutar Modelo</button>
-        </form>
-        <form class="mb-3" action="/detener_modelo" method="post">
-            <button type="submit" class="btn btn-danger">⛔ Detener Modelo</button>
-        </form>
-        <div class="card p-3 mb-3">
-            <h4>📊 Estado del Modelo</h4>
-            <p class="text-success">Esperando ejecución...</p>
-        </div>
-        <div class="card p-3">
-            <h4>📈 Información de Cuenta</h4>
-            {% if account %}
-                <p><b>ID:</b> {{ account.id }}</p>
-                <p><b>Status:</b> {{ account.status }}</p>
-                <p><b>Equity:</b> {{ account.equity }}</p>
-                <p><b>Buying Power:</b> {{ account.buying_power }}</p>
-            {% else %}
-                <p>Error obteniendo información de cuenta.</p>
-            {% endif %}
-        </div>
-    </div>
+<body class="bg-light">
+<div class="container py-4">
+    <h2>🧠 Panel de Control – WebApp Alpaca</h2>
+    <form method="POST" action="/cargar_modelo" class="mb-3">
+        <label class="form-label">📁 Cargar modelo:</label>
+        <select name="modelo" class="form-select w-auto d-inline">
+            <option>Modelo Oficial</option>
+            <option>Modelo Alternativo</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Cargar</button>
+    </form>
+    <form method="POST" action="/ejecutar_modelo" class="d-inline">
+        <button type="submit" class="btn btn-info">▶️ Ejecutar Modelo</button>
+    </form>
+    <form method="POST" action="/detener_modelo" class="d-inline">
+        <button type="submit" class="btn btn-danger">⛔ Detener Modelo</button>
+    </form>
+    <hr>
+    <h4>📊 Estado del Modelo</h4>
+    <p><strong>Modelo:</strong> {{ modelo.nombre }}</p>
+    <p class="text-success"><strong>{{ modelo.estado }}</strong></p>
+    <hr>
+    <h4>📈 Operaciones Recientes</h4>
+    <ul>
+        {% for orden in modelo.ordenes %}
+            <li>{{ orden.ticker }} - {{ orden.tipo }} - {{ orden.cantidad }} @ {{ orden.precio }}</li>
+        {% endfor %}
+    </ul>
+</div>
 </body>
 </html>

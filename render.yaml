@@ -2,11 +2,7 @@ services:
   - type: web
     name: webapp-alpaca-paper
     env: python
-    region: oregon
+    plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn alpaca_controller:app"
-    envVars:
-      - key: ALPACA_API_KEY
-        fromEnvVar: ALPACA_API_KEY
-      - key: ALPACA_API_SECRET
-        fromEnvVar: ALPACA_API_SECRET
+    autoDeploy: true
