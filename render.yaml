@@ -1,7 +1,7 @@
 
 services:
   - type: web
-    name: webapp-alpaca-norestric
+    name: webapp-alpaca-final
     env: python
     plan: free
     buildCommand: ""
