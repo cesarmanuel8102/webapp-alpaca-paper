@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alpaca WebApp Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .button {
+            display: inline-block;
+            margin: 0.5rem;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            background-color: #0069d9;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0053b3;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .status-box {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Alpaca Trading WebApp</h1>
+
+    <div class="section">
+        <form action="/cargar_modelo" method="post">
+            <label for="modelo">Seleccionar modelo:</label>
+            <select name="modelo" id="modelo">
+                <option value="modelo_hibrido">Modelo Híbrido</option>
+                <option value="modelo_oficial">Modelo Oficial</option>
+                <option value="modelo_backup">Modelo Backup</option>
+            </select>
+            <button class="button" type="submit">Cargar Modelo</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <form action="/ejecutar_modelo" method="post">
+            <button class="button" type="submit">Ejecutar Modelo</button>
+        </form>
+        <form action="/detener_modelo" method="post">
+            <button class="button" type="submit" style="background-color:#dc3545;">Detener Modelo</button>
+        </form>
+    </div>
+
+    <div class="section status-box">
+        <h2>Estado actual</h2>
+        <p id="estado">Esperando acción del usuario...</p>
+    </div>
+
+    <div class="section status-box">
+        <h2>Operaciones</h2>
+        <p>Operaciones recientes aparecerán aquí.</p>
+    </div>
+
+    <div class="section status-box">
+        <h2>Resultados</h2>
+        <p>Resultados acumulados aparecerán aquí.</p>
+    </div>
+</body>
+</html>
