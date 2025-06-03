@@ -3,6 +3,6 @@ services:
     name: webapp-alpaca-paper
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: ""
     startCommand: "python app.py"
     autoDeploy: true

@@ -1,33 +1,12 @@
-from flask import Flask, redirect, request
+from flask import Flask, render_template, request, redirect, url_for
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
 
-CLIENT_ID = os.getenv("ALPACA_OAUTH_CLIENT_ID")
-REDIRECT_URI = os.getenv("ALPACA_OAUTH_REDIRECT_URI")
+@app.route('/')
+def index():
+    return "WebApp Alpaca PaperTrading Activa"
 
-@app.route("/")
-def home():
-    return '''
-    <h1>Conectar con Alpaca</h1>
-    <a href="/login">Iniciar sesión con Alpaca</a>
-    '''
-
-@app.route("/login")
-def login():
-    auth_url = (
-        "https://app.alpaca.markets/oauth/authorize"
-        f"?response_type=code"
-        f"&client_id={CLIENT_ID}"
-        f"&redirect_uri={REDIRECT_URI}"
-        f"&scope=account:write%20trading"
-    )
-    return redirect(auth_url)
-
-@app.route("/callback")
-def callback():
-    code = request.args.get("code")
-    return f"Código recibido: {code}"
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))  # Render necesita que se use este puerto
+    app.run(host='0.0.0.0', port=port)
