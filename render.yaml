@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: webapp-alpaca-paper
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn alpaca_controller:app"
+    plan: free
