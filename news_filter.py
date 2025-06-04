@@ -1,34 +1,40 @@
+# news_filter.py
 
 import requests
 import os
-from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
-FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
+load_dotenv()
 
-def filtrar_noticias(ticker, dias=3, impacto_clave=['downgrade', 'recall', 'miss', 'fraud']):
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
+
+def is_market_news_positive(ticker):
+    """
+    Evalúa si las noticias recientes para el ticker son mayormente positivas.
+    """
     if not FINNHUB_API_KEY:
-        raise ValueError("La clave de API de Finnhub no está configurada en el entorno.")
+        raise ValueError("API key de Finnhub no definida en el entorno.")
 
-    hoy = datetime.utcnow().date()
-    inicio = hoy - timedelta(days=dias)
+    url = f"https://finnhub.io/api/v1/company-news?symbol={ticker}&from=2024-12-01&to=2025-12-31&token={FINNHUB_API_KEY}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        noticias = response.json()
 
-    url = f"https://finnhub.io/api/v1/company-news?symbol={ticker}&from={inicio}&to={hoy}&token={FINNHUB_API_KEY}"
-    response = requests.get(url)
+        positivas = 0
+        negativas = 0
 
-    if response.status_code != 200:
-        return []
+        for noticia in noticias:
+            headline = noticia.get("headline", "").lower()
+            summary = noticia.get("summary", "").lower()
+            if any(p in headline or p in summary for p in ["beats", "record", "growth", "rises", "surge", "strong"]):
+                positivas += 1
+            elif any(n in headline or n in summary for n in ["falls", "misses", "drop", "warning", "lawsuit", "loss"]):
+                negativas += 1
 
-    noticias = response.json()
-    relevantes = []
+        return positivas >= negativas
 
-    for noticia in noticias:
-        titulo = noticia.get('headline', '').lower()
-        if any(palabra in titulo for palabra in impacto_clave):
-            relevantes.append({
-                'titulo': noticia.get('headline'),
-                'fecha': noticia.get('datetime'),
-                'fuente': noticia.get('source'),
-                'url': noticia.get('url')
-            })
-
-    return relevantes
+    except Exception as e:
+        print(f"❌ Error al analizar noticias de {ticker}: {e}")
+        return False
