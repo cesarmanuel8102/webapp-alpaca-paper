@@ -7,5 +7,9 @@ services:
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python app.py"
     envVars:
-      - key: FLASK_ENV
-        value: production
+      - key: APCA_API_KEY_ID
+        sync: false
+      - key: APCA_API_SECRET_KEY
+        sync: false
+      - key: BASE_URL
+        sync: false
