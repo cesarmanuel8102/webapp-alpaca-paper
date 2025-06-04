@@ -1,34 +1,38 @@
-
 import requests
 import os
-from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
-FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
+load_dotenv()
 
-def filtrar_noticias(ticker, dias=3, impacto_clave=['downgrade', 'recall', 'miss', 'fraud']):
-    if not FINNHUB_API_KEY:
-        raise ValueError("La clave de API de Finnhub no está configurada en el entorno.")
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 
-    hoy = datetime.utcnow().date()
-    inicio = hoy - timedelta(days=dias)
+def is_market_news_positive(ticker):
+    """
+    Analiza las noticias recientes para un ticker y devuelve True si el sentimiento general es positivo o neutral,
+    y False si es mayoritariamente negativo.
+    """
+    try:
+        url = f"https://finnhub.io/api/v1/news?category=general&token={FINNHUB_API_KEY}"
+        response = requests.get(url)
+        news = response.json()
 
-    url = f"https://finnhub.io/api/v1/company-news?symbol={ticker}&from={inicio}&to={hoy}&token={FINNHUB_API_KEY}"
-    response = requests.get(url)
+        # Filtrar por el ticker
+        filtered = [item for item in news if ticker.upper() in item.get("headline", "") or ticker.upper() in item.get("summary", "")]
 
-    if response.status_code != 200:
-        return []
+        # Análisis básico: contar negativos
+        negative_keywords = ["fall", "plunge", "lawsuit", "crash", "loss", "drop", "slump", "fraud", "warning", "negative", "bad"]
+        negative_count = 0
 
-    noticias = response.json()
-    relevantes = []
+        for item in filtered:
+            content = (item.get("headline", "") + " " + item.get("summary", "")).lower()
+            if any(word in content for word in negative_keywords):
+                negative_count += 1
 
-    for noticia in noticias:
-        titulo = noticia.get('headline', '').lower()
-        if any(palabra in titulo for palabra in impacto_clave):
-            relevantes.append({
-                'titulo': noticia.get('headline'),
-                'fecha': noticia.get('datetime'),
-                'fuente': noticia.get('source'),
-                'url': noticia.get('url')
-            })
+        if len(filtered) == 0:
+            return True  # Si no hay noticias, se asume neutral/positivo
 
-    return relevantes
+        return (negative_count / len(filtered)) < 0.5
+
+    except Exception as e:
+        print(f"Error analizando noticias: {e}")
+        return True  # En caso de error, se asume neutral para no bloquear operaciones
