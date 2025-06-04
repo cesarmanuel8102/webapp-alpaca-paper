@@ -1,71 +1,74 @@
 
+import yfinance as yf
 import pandas as pd
 import numpy as np
 
-def calculate_rsi(data, period=14):
-    delta = data['close'].diff()
-    gain = delta.clip(lower=0)
-    loss = -1 * delta.clip(upper=0)
-    avg_gain = gain.rolling(window=period).mean()
-    avg_loss = loss.rolling(window=period).mean()
+def get_indicators(ticker):
+    df = yf.download(ticker, period="90d", interval="1d")
+
+    if df.empty:
+        return {}
+
+    df.dropna(inplace=True)
+
+    # RSI
+    delta = df["Close"].diff()
+    gain = np.where(delta > 0, delta, 0)
+    loss = np.where(delta < 0, -delta, 0)
+    avg_gain = pd.Series(gain).rolling(window=14).mean()
+    avg_loss = pd.Series(loss).rolling(window=14).mean()
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-    return rsi
+    df["RSI"] = rsi
 
-def calculate_mfi(data, period=14):
-    typical_price = (data['high'] + data['low'] + data['close']) / 3
-    money_flow = typical_price * data['volume']
-    positive_flow = money_flow.where(typical_price > typical_price.shift(), 0)
-    negative_flow = money_flow.where(typical_price < typical_price.shift(), 0)
-    pos_mf = positive_flow.rolling(window=period).sum()
-    neg_mf = negative_flow.rolling(window=period).sum()
-    mfi = 100 - (100 / (1 + pos_mf / neg_mf))
-    return mfi
+    # MFI
+    typical_price = (df["High"] + df["Low"] + df["Close"]) / 3
+    money_flow = typical_price * df["Volume"]
+    positive_flow = []
+    negative_flow = []
 
-def calculate_macd(data, fast=12, slow=26, signal=9):
-    ema_fast = data['close'].ewm(span=fast, adjust=False).mean()
-    ema_slow = data['close'].ewm(span=slow, adjust=False).mean()
-    macd = ema_fast - ema_slow
-    signal_line = macd.ewm(span=signal, adjust=False).mean()
-    return macd, signal_line
-
-def calculate_bollinger_bands(data, period=20, num_std=2):
-    sma = data['close'].rolling(window=period).mean()
-    std = data['close'].rolling(window=period).std()
-    upper_band = sma + num_std * std
-    lower_band = sma - num_std * std
-    return upper_band, lower_band
-
-def calculate_adx(data, period=14):
-    up_move = data['high'].diff()
-    down_move = data['low'].diff()
-    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
-    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
-    tr = pd.concat([
-        data['high'] - data['low'],
-        abs(data['high'] - data['close'].shift()),
-        abs(data['low'] - data['close'].shift())
-    ], axis=1).max(axis=1)
-    tr_smooth = tr.rolling(window=period).mean()
-    plus_di = 100 * (pd.Series(plus_dm).rolling(window=period).mean() / tr_smooth)
-    minus_di = 100 * (pd.Series(minus_dm).rolling(window=period).mean() / tr_smooth)
-    dx = (abs(plus_di - minus_di) / (plus_di + minus_di)) * 100
-    adx = dx.rolling(window=period).mean()
-    return adx
-
-def calculate_obv(data):
-    obv = [0]
-    for i in range(1, len(data)):
-        if data['close'][i] > data['close'][i - 1]:
-            obv.append(obv[-1] + data['volume'][i])
-        elif data['close'][i] < data['close'][i - 1]:
-            obv.append(obv[-1] - data['volume'][i])
+    for i in range(1, len(typical_price)):
+        if typical_price[i] > typical_price[i - 1]:
+            positive_flow.append(money_flow[i])
+            negative_flow.append(0)
         else:
-            obv.append(obv[-1])
-    return pd.Series(obv, index=data.index)
+            positive_flow.append(0)
+            negative_flow.append(money_flow[i])
 
-def calculate_ema(data, period=50):
-    return data['close'].ewm(span=period, adjust=False).mean()
+    positive_mf = pd.Series(positive_flow).rolling(window=14).sum()
+    negative_mf = pd.Series(negative_flow).rolling(window=14).sum()
+    mfi = 100 - (100 / (1 + (positive_mf / negative_mf)))
+    df["MFI"] = mfi
 
-def calculate_avg_volume(data, period=20):
-    return data['volume'].rolling(window=period).mean()
+    # MACD
+    ema12 = df["Close"].ewm(span=12, adjust=False).mean()
+    ema26 = df["Close"].ewm(span=26, adjust=False).mean()
+    df["MACD"] = ema12 - ema26
+    df["Signal_MACD"] = df["MACD"].ewm(span=9, adjust=False).mean()
+
+    # Bollinger Bands
+    df["BB_Middle"] = df["Close"].rolling(window=20).mean()
+    df["BB_StdDev"] = df["Close"].rolling(window=20).std()
+    df["BB_Upper"] = df["BB_Middle"] + 2 * df["BB_StdDev"]
+    df["BB_Lower"] = df["BB_Middle"] - 2 * df["BB_StdDev"]
+
+    # ADX
+    df["TR"] = np.maximum(df["High"] - df["Low"], 
+                          np.maximum(abs(df["High"] - df["Close"].shift()), 
+                                     abs(df["Low"] - df["Close"].shift())))
+    df["+DM"] = np.where((df["High"] - df["High"].shift()) > (df["Low"].shift() - df["Low"]), 
+                         np.maximum(df["High"] - df["High"].shift(), 0), 0)
+    df["-DM"] = np.where((df["Low"].shift() - df["Low"]) > (df["High"] - df["High"].shift()), 
+                         np.maximum(df["Low"].shift() - df["Low"], 0), 0)
+    tr14 = df["TR"].rolling(14).sum()
+    plus_dm14 = df["+DM"].rolling(14).sum()
+    minus_dm14 = df["-DM"].rolling(14).sum()
+    plus_di14 = 100 * (plus_dm14 / tr14)
+    minus_di14 = 100 * (minus_dm14 / tr14)
+    dx = 100 * (abs(plus_di14 - minus_di14) / (plus_di14 + minus_di14))
+    adx = dx.rolling(14).mean()
+    df["ADX"] = adx
+
+    # OBV
+    obv = [0]
+    for i in range(1, len(df["Close"]
