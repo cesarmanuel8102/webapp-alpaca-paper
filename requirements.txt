@@ -2,4 +2,4 @@ flask
 alpaca-trade-api
 python-dotenv
 yfinance
-git+https://github.com/tastytrade/api-python-sdk.git
+https://github.com/tastytrade/api-python-sdk/archive/refs/heads/main.zip
