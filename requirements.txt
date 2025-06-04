@@ -1,4 +1,11 @@
+alpaca-trade-api
 flask
 python-dotenv
-alpaca-trade-api
 yfinance
+pandas
+requests
+aiohttp
+blinker
+websocket-client
+werkzeug
+git+https://github.com/tastytrade/api-python-sdk.git
