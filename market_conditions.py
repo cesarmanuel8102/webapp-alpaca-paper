@@ -1,23 +1,22 @@
+# market_conditions.py
 
-import pandas as pd
+import pytz
+from datetime import datetime
 
-def is_bullish_market(rsi, ema, macd):
-    return rsi > 50 and ema > 0 and macd > 0
+def is_market_open():
+    """
+    Devuelve True si el mercado está abierto en horario de Nueva York (EST),
+    entre las 9:30 AM y 4:00 PM.
+    """
+    ny_timezone = pytz.timezone("America/New_York")
+    now_ny = datetime.now(ny_timezone)
 
-def is_bearish_market(rsi, ema, macd):
-    return rsi < 50 and ema < 0 and macd < 0
+    # Verifica día hábil (lunes a viernes)
+    if now_ny.weekday() >= 5:
+        return False
 
-def get_market_trend_signal(data):
-    try:
-        if 'EMA_50' in data.columns and 'RSI' in data.columns and 'MACD' in data.columns:
-            ema = data['EMA_50'].iloc[-1] - data['EMA_50'].mean()
-            rsi = data['RSI'].iloc[-1]
-            macd = data['MACD'].iloc[-1]
-            if is_bullish_market(rsi, ema, macd):
-                return 'bullish'
-            elif is_bearish_market(rsi, ema, macd):
-                return 'bearish'
-        return 'neutral'
-    except Exception as e:
-        print(f"[market_conditions] Error evaluating trend: {e}")
-        return 'neutral'
+    # Verifica hora dentro del rango de mercado
+    market_open = now_ny.replace(hour=9, minute=30, second=0, microsecond=0)
+    market_close = now_ny.replace(hour=16, minute=0, second=0, microsecond=0)
+
+    return market_open <= now_ny <= market_close
