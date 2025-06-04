@@ -1,5 +1,13 @@
 flask
-alpaca-trade-api
 python-dotenv
+alpaca-trade-api
 yfinance
-https://github.com/tastytrade/api-python-sdk/archive/refs/heads/main.zip
+requests
+pandas
+matplotlib
+ta
+beautifulsoup4
+lxml
+scikit-learn
+openai
+https://github.com/tastytrade/api-python-sdk/archive/refs/heads/master.zip
