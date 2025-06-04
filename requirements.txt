@@ -10,4 +10,4 @@ beautifulsoup4
 lxml
 scikit-learn
 openai
-tastytrade-python-sdk
+git+https://github.com/tastytrade/api-python-sdk.git
