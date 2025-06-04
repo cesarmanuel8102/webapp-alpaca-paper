@@ -71,4 +71,37 @@ def get_indicators(ticker):
 
     # OBV
     obv = [0]
-    for i in range(1, len(df["Close"]
+    for i in range(1, len(df["Close"])):
+        if df["Close"][i] > df["Close"][i - 1]:
+            obv.append(obv[-1] + df["Volume"][i])
+        elif df["Close"][i] < df["Close"][i - 1]:
+            obv.append(obv[-1] - df["Volume"][i])
+        else:
+            obv.append(obv[-1])
+    df["OBV"] = obv
+
+    # EMA 50
+    df["EMA_50"] = df["Close"].ewm(span=50, adjust=False).mean()
+
+    # Volumen promedio 20 días
+    df["Vol_Prom_20"] = df["Volume"].rolling(window=20).mean()
+
+    # Filtro técnico de reversión
+    df["Reversion_Filter"] = ((df["RSI"] < 30) & (df["MACD"] < df["Signal_MACD"]) & (df["Close"] < df["BB_Lower"]))
+
+    latest = df.iloc[-1]
+    indicadores = {
+        "RSI": round(latest["RSI"], 2),
+        "MFI": round(latest["MFI"], 2),
+        "MACD": round(latest["MACD"], 4),
+        "MACD_Signal": round(latest["Signal_MACD"], 4),
+        "BB_Upper": round(latest["BB_Upper"], 2),
+        "BB_Lower": round(latest["BB_Lower"], 2),
+        "ADX": round(latest["ADX"], 2),
+        "OBV": round(latest["OBV"], 2),
+        "EMA_50": round(latest["EMA_50"], 2),
+        "Volumen_Prom_20": round(latest["Vol_Prom_20"], 2),
+        "Filtro_Reversion": bool(latest["Reversion_Filter"])
+    }
+
+    return indicadores
