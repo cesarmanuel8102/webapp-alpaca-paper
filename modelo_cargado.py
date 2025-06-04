@@ -2,7 +2,6 @@
 import datetime
 import pytz
 from indicators import get_indicators  # Debes implementar este módulo con RSI, MFI, MACD, etc.
-from tastytrade_api import place_trade, check_buying_power, get_option_chain  # Módulo propio con autenticación
 from news_filter import is_market_news_positive  # Valida eventos desde fuentes confiables
 from market_conditions import is_market_open, is_volatility_ok, is_post_event_day  # Filtros externos
 from strategy_selector import choose_strategy  # Bull Put o Bear Call
